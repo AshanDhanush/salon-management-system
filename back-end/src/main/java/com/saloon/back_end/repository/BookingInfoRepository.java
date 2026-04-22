@@ -9,4 +9,6 @@ import java.util.List;
 public interface BookingInfoRepository extends MongoRepository<BookingInfo,String> {
 
     List<BookingInfo> findByDate(LocalDate date);
+
+    List<BookingInfo> findByCustomerEmail(String customerEmail);
 }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -90,5 +91,33 @@ public class BookingServiceImpl implements BookingService {
 
         }
 
+    }
+
+    @Override
+    public List<BookingInfoDto> getBookingInfo(String email) {
+       List<BookingInfo> bookingInfos =  repository.findByCustomerEmail(email);
+       List<BookingInfoDto> bookingInfoDtos = new ArrayList<>();
+        BookingInfoDto bookingInfoDto;
+       for(BookingInfo b : bookingInfos){
+            bookingInfoDto = new BookingInfoDto(
+                   b.getTitle(),
+                   b.getPrice(),
+                   b.getDuration(),
+                   b.getCategory(),
+                   b.getCustomerName(),
+                   b.getCustomerEmail(),
+                   b.getCustomerPhoneNumber(),
+                   b.getDate(),
+                   b.getTime()
+           );
+           bookingInfoDtos.add(bookingInfoDto);
+       }
+       return bookingInfoDtos;
+    }
+
+    @Override
+    public int getAmount(String email) {
+        List<BookingInfo> bookingInfos = repository.findByCustomerEmail(email);
+        return bookingInfos.size();
     }
 }

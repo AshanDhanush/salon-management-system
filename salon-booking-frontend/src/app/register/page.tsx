@@ -40,7 +40,7 @@ export default function Register() {
                 name: formData.name,
                 email: formData.email,
                 password: formData.password,
-                roll: 'CUSTOMER',
+                role: 'CUSTOMER',
                 contactNo: formData.contactNo
                 
             });

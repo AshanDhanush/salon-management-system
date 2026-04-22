@@ -10,4 +10,8 @@ public interface BookingService {
     List<String> checkAvailability(LocalDate date);
 
     boolean confirm(BookingInfoDto bookingInfoDto);
+
+    List<BookingInfoDto> getBookingInfo(String email);
+
+    int getAmount(String email);
 }
