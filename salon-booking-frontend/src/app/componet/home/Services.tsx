@@ -3,6 +3,7 @@ import React from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Clock, Tag, Scissors, Sparkles, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
 
 
 interface Service {
@@ -103,10 +104,13 @@ const Services = () => {
                                 </div>
 
                                 {/* Button */}
+                                <Link href  = "/booking">
                                 <button className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white font-bold rounded-2xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2">
                                     Book Now
                                     <ChevronRight size={18} />
                                 </button>
+                                </Link>
+                                
                             </div>
                         ))}
                     </div>

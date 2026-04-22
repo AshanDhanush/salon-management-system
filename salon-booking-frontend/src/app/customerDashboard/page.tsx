@@ -1,27 +1,22 @@
 "use client";
 
-import React, { useState } from "react"; // Added useState
+import React, { use, useEffect, useState } from "react"; // Added useState
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, CalendarCheck, LogOut, Menu, X } from "lucide-react"; // Added Menu, X
+import { LayoutDashboard, CalendarCheck, LogOut, Menu, X , Loader2} from "lucide-react"; // Added Menu, X
 import Navbar from "../componet/common/Nabar";
 import Footer from "../componet/common/Footer";
 import { useAuth } from "@/context/AuthContext";
+import axios, {isAxiosError} from "axios";
 
 type Appointment = {
-  id: number;
-  service: string;
+  title: string;
   date: string;
   time: string;
-  staff: string;
-  status: string;
-  price: string;
+  category: string;
+  price: number;
+  status?: string;
 };
 
-const appointmentData: Appointment[] = [
-  { id: 1, service: "Haircut", date: "2026-04-15", time: "10:00 AM", staff: "Emma", status: "Confirmed", price: "$35" },
-  { id: 2, service: "Manicure", date: "2026-04-18", time: "02:00 PM", staff: "Noah", status: "Pending", price: "$25" },
-  { id: 3, service: "Facial", date: "2026-04-20", time: "11:30 AM", staff: "Liam", status: "Completed", price: "$55" },
-];
 
 const NavItems = ({
   logout,
@@ -69,6 +64,39 @@ export default function UpdatedDashboard() {
   const { user, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); 
   const [activeTab, setActiveTab] = useState<"dashboard" | "appointments">("dashboard");
+  const [amount,setAmount] = useState<number>(0)
+  const [error,setError] = useState('')
+  const [loading, setLoading] = useState(true);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+
+ useEffect(() => {
+  const fetchStat = async () => {
+    if (!user?.email) return;
+
+    try {
+      setLoading(true); 
+    
+      const [amountRes , listRes] = await Promise.all([
+        axios.get(`http://localhost:8081/customers/booking/amount?email=${user.email}`),
+        axios.get(`http://localhost:8081/customers/booking/details?email=${user.email}`)
+      ]);
+      
+      setAmount(amountRes.data);
+      setAppointments(listRes.data);
+      setError(""); 
+    } catch (err) {
+      if (isAxiosError(err) && err.response) {
+        setError(err.response.data.message || "Could not load appointment data.");
+      } else {
+        setError("Network Error");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchStat();
+}, [user?.email]); 
 
   return (
     <>
@@ -157,10 +185,20 @@ export default function UpdatedDashboard() {
                         <p className="text-gray-500 text-sm">Your history</p>
                       </div>
                     </div>
-                    <div className="text-4xl md:text-6xl font-bold text-gray-800 tracking-tighter">{appointmentData.length}</div>
+                    <div className="text-4xl md:text-6xl font-bold text-gray-800 tracking-tighter">
+                      {loading ? (
+                        <Loader2 className="animate-spin text-slate-700" />
+                      ) : (
+                        // Changed text-white to text-black or text-pink-500 because the background is white
+                        <div className="text-4xl font-black text-black group-hover:text-pink-500 transition-colors">
+                          {amount}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="bg-[#1f2937] hover:bg-black transition-colors">
-                    <button className="w-full py-3 text-white text-sm font-semibold tracking-wide">
+                    <button className="w-full py-3 text-white text-sm font-semibold tracking-wide"
+                     onClick={()=>setActiveTab("appointments")} >
                       View All Bookings
                     </button>
                   </div>
@@ -172,32 +210,38 @@ export default function UpdatedDashboard() {
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-slate-900 text-white">
                       <tr>
-                        <th className="px-4 py-3 text-left text-sm font-semibold">Service</th>
+                        <th className="px-4 py-3 text-left text-sm font-semibold">Title</th>
                         <th className="px-4 py-3 text-left text-sm font-semibold">Date</th>
                         <th className="px-4 py-3 text-left text-sm font-semibold">Time</th>
-                        <th className="px-4 py-3 text-left text-sm font-semibold">Staff</th>
+                        <th className="px-4 py-3 text-left text-sm font-semibold">Category</th>
                         <th className="px-4 py-3 text-left text-sm font-semibold">Status</th>
                         <th className="px-4 py-3 text-right text-sm font-semibold">Price</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100 bg-white">
-                      {appointmentData.map((appointment) => (
-                        <tr key={appointment.id} className="hover:bg-slate-50">
-                          <td className="px-4 py-3 text-sm text-gray-700">{appointment.service}</td>
-                          <td className="px-4 py-3 text-sm text-gray-700">{appointment.date}</td>
-                          <td className="px-4 py-3 text-sm text-gray-700">{appointment.time}</td>
-                          <td className="px-4 py-3 text-sm text-gray-700">{appointment.staff}</td>
-                          <td className={`px-4 py-3 text-sm font-medium ${
-                            appointment.status === "Confirmed"
-                              ? "text-emerald-600"
-                              : appointment.status === "Pending"
-                              ? "text-amber-600"
-                              : "text-slate-500"
-                          }`}>{appointment.status}</td>
-                          <td className="px-4 py-3 text-sm text-right text-gray-700">{appointment.price}</td>
-                        </tr>
-                      ))}
-                    </tbody>
+                      <tbody className="divide-y divide-gray-100 bg-white">
+                        {appointments.length > 0 ? (
+                          appointments.map((app,index) => (
+                            <tr key={index} className="hover:bg-slate-50">
+                              <td className="px-4 py-3 text-sm font-medium text-gray-900">{app.title}</td>
+                              <td className="px-4 py-3 text-sm text-gray-700">{app.date}</td>
+                              <td className="px-4 py-3 text-sm text-gray-700">{app.time}</td>
+                              <td className="px-4 py-3 text-sm text-gray-700">{app.category}</td>
+                              <td className="px-4 py-3 text-sm font-medium text-emerald-600">
+                                {app.status || "Confirmed"}
+                              </td>
+                              <td className="px-4 py-3 text-sm text-right font-bold text-gray-900">
+                                Rs. {(app.price*10000).toLocaleString()}
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={6} className="px-4 py-10 text-center text-gray-400 italic">
+                              No appointments found. Start booking today!
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
                   </table>
                 </div>
               </div>
