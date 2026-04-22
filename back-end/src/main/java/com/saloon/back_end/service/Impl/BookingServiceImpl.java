@@ -1,10 +1,15 @@
 package com.saloon.back_end.service.Impl;
 
+import com.saloon.back_end.model.dto.AuthResponse;
+import com.saloon.back_end.model.dto.BookingInfoDto;
 import com.saloon.back_end.model.entity.BookingInfo;
 import com.saloon.back_end.repository.BookingInfoRepository;
 import com.saloon.back_end.service.BookingService;
+import com.saloon.back_end.service.InvoiseService;
+import com.saloon.back_end.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,6 +20,12 @@ public class BookingServiceImpl implements BookingService {
 
     @Autowired
     BookingInfoRepository repository;
+
+    @Autowired
+    InvoiseService invoiseService;
+
+    @Autowired
+    NotificationService notificationService;
 
     @Override
     public List<String> checkAvailability(LocalDate date) {
@@ -32,5 +43,52 @@ public class BookingServiceImpl implements BookingService {
         return allSlots.stream()
                 .filter(slot -> !takenTimes.contains(slot))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public boolean confirm(BookingInfoDto bookingInfoDto) {
+        if(bookingInfoDto == null){
+            return false;
+        }
+        try {
+            BookingInfo bookingInfo = new BookingInfo(
+                    null,
+                    bookingInfoDto.getTitle(),
+                    bookingInfoDto.getPrice(),
+                    bookingInfoDto.getDuration(),
+                    bookingInfoDto.getCategory(),
+                    bookingInfoDto.getCustomerName(),
+                    bookingInfoDto.getCustomerEmail(),
+                    bookingInfoDto.getCustomerPhoneNumber(),
+                    bookingInfoDto.getDate(),
+                    bookingInfoDto.getTime(),
+                    "PENDING"
+            );
+            repository.save(bookingInfo);
+
+             String html = invoiseService.buildInvoiceHtml(
+                    bookingInfo.getTitle(),
+                    bookingInfo.getPrice(),
+                    bookingInfo.getDuration(),
+                    bookingInfo.getCategory(),
+                    bookingInfo.getCustomerName(),
+                    bookingInfo.getCustomerEmail(),
+                    bookingInfo.getCustomerPhoneNumber(),
+                    bookingInfo.getDate(),
+                    bookingInfo.getTime()
+            );
+            byte[] pdfBytes = invoiseService.generateInvoicePdf(html);
+
+            notificationService.sendEmailWithInvoice(bookingInfo.getCustomerEmail(),pdfBytes);
+
+
+            return true;
+
+        }catch(Exception e){
+            throw new RuntimeException("Failed to save booking informations", e);
+
+        }
+
     }
 }

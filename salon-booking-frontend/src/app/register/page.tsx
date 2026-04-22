@@ -40,13 +40,14 @@ export default function Register() {
                 name: formData.name,
                 email: formData.email,
                 password: formData.password,
-                contactNo: formData.contactNo,
-                roll: 'customer'
+                roll: 'CUSTOMER',
+                contactNo: formData.contactNo
+                
             });
             const { user, token } = response.data;
 
             login(user, token);
-            if (user.role === 'customer') {
+            if (user.role === 'CUSTOMER') {
                 router.push("/");
             }
             setLoading(false);

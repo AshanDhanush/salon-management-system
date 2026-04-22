@@ -5,6 +5,10 @@ import Navbar from "../componet/common/Nabar";
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Scissors, Clock, User, Check, ChevronRight, ChevronLeft, Calendar } from "lucide-react";
+import ProtectedRoute from "../componet/auth/ProtectedRoute";
+import { useAuth } from "@/context/AuthContext";
+import axios, {isAxiosError} from "axios";
+import { useRouter } from "next/navigation";
 
 interface Service {
     id: number;
@@ -28,6 +32,61 @@ export default function Booking(){
     const [availableSlots, setAvailableSlots] = useState<string[]>([]);
     const [loadingSlots, setLoadingSlots] = useState<boolean>(false);
     const [selectedTime, setSelectedTime] = useState<string>("");
+    const {user} = useAuth();
+    const  router = useRouter();
+    const [error,setError] = useState(" ")
+
+    const formatTimeTo24h = (timeStr: string) => {
+        // timeStr is "11:00 AM"
+        const [time, modifier] = timeStr.split(' ');
+        let [hours, minutes] = time.split(':');
+
+        if (hours === '12') {
+            hours = '00';
+        }
+
+        if (modifier === 'PM') {
+            hours = (parseInt(hours, 10) + 12).toString();
+        }
+
+        // Returns "11:00" or "23:00"
+        return `${hours.padStart(2, '0')}:${minutes}:00`;
+    };
+
+    const handleSubmit = async() =>{
+        if ( !selectedService || !selectedDate || !selectedTime || !user ){
+            alert("Missing Booking Information");
+            return
+        }
+        const bookingPayload = {
+        title: selectedService.title,
+        price: parseFloat(selectedService.price.replace(/[^\d.]/g, '')), 
+        duration: selectedService.duration,
+        category: selectedService.category,
+        customerName: user.name,
+        customerEmail: user.email,
+        customerPhoneNumber: user.phone || "Not Provided",
+        date: selectedDate, 
+        time: formatTimeTo24h(selectedTime),
+        }
+
+        try{
+            const response = await axios.post('http://localhost:8081/api/booking/confirm',
+              bookingPayload
+            )
+            if (response.status==200 || response.status==201){
+                router.push("/customerDashboard")
+            }
+        }catch (err) {
+        if (isAxiosError(err) && err.response){
+            setError(err.response.data.message)
+        }else {
+            setError("Network Error !");
+        }
+    }
+
+    }
+
 
     useEffect(() => {
         const fetchSlots = async () => {
@@ -49,7 +108,9 @@ export default function Booking(){
     }, [selectedDate]); 
 
     return(
-        <div className="min-h-screen bg-slate-950 text-white">
+        <ProtectedRoute>
+
+            <div className="min-h-screen bg-slate-950 text-white">
             <Navbar />
 
             {/* Header Area */}
@@ -118,7 +179,7 @@ export default function Booking(){
 
                         {step === 2 && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                {/* 🗓️ DATE PICKER */}
+                                {/* DATE PICKER */}
                                 <div className="space-y-4">
                                     <label className="text-slate-400 text-sm font-bold uppercase">Select Date</label>
                                     <input
@@ -129,7 +190,7 @@ export default function Booking(){
                                     />
                                 </div>
 
-                                {/* 🕒 TIME SLOTS */}
+                                {/*TIME SLOTS */}
                                 <div className="space-y-4">
                                     <label className="text-slate-400 text-sm font-bold uppercase">Available Times</label>
 
@@ -162,6 +223,11 @@ export default function Booking(){
 
                     {/* Navigation Buttons */}
                     <div className="flex justify-between mt-12">
+                       {error && (
+                        <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400">
+                            {error}
+                        </div>
+                    )}
                         <button
                             disabled={step === 1}
                             onClick={() => setStep(step - 1)}
@@ -172,19 +238,28 @@ export default function Booking(){
                             <ChevronLeft size={20} /> Back
                         </button>
                         
-                        <button
-                            disabled={step === 1 && !selectedService}
-                            onClick={() => setStep(step + 1)}
-                            className="flex items-center gap-2 px-10 py-3 bg-gradient-to-r from-pink-500 to-purple-500 rounded-xl font-bold text-white hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100"
-                        >
-                            {step === 3 ? "Confirm Booking" : "Next Step"} <ChevronRight size={20} />
-                        </button>
+                            <button
+                                disabled={(step === 1 && !selectedService) || (step === 2 && (!selectedDate || !selectedTime))}
+                                onClick={() => {
+                                    if (step === 3) {
+                                        handleSubmit();
+                                    } else {
+                                        setStep(step + 1);
+                                    }
+                                }}
+                                className="flex items-center gap-2 px-10 py-3 bg-gradient-to-r from-pink-500 to-purple-500 rounded-xl font-bold text-white hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100"
+                            >
+                                {step === 3 ? "Confirm Booking" : "Next Step"} <ChevronRight size={20} />
+                            </button>
                     </div>
                 </div>
             </main>
 
             <Footer />
         </div>
+  
+        </ProtectedRoute>
+        
         
     );
 }

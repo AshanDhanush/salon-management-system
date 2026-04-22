@@ -23,5 +23,5 @@ public class BookingInfo {
     private String customerPhoneNumber;
     private LocalDate date;
     private LocalTime time;
-    private String status = "pending";
+    private String status;
 }
