@@ -1,0 +1,104 @@
+# --- Environment Variables & Security (CRITICAL) ---
+.env
+.env*
+*.env
+.venv
+env/
+venv/
+ENV/
+env.bak
+*.pem
+*.key
+
+# --- Python / Backend (FastAPI) ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.pytest_cache/
+.history/
+
+# --- Node / Frontend (Next.js/React) ---
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+/coverage
+/.next/
+/out/
+/build
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+
+# --- Logs & Debugging ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# --- Databases ---
+*.sqlite
+*.db
+
+# --- OS & IDE Files ---
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.bak
+
+# --- Research & Data ---
+# Essential for large datasets like Hypersim
+**/data/
+**/datasets/
+*.csv
+*.jsonl
+*.zip
+*.tar.gz
+node_modules
+
+# Backend
+chatbot-backend/venv/
+__pycache__/
+*.pyc
+
+# Frontend
+salon-booking-frontend/.next/
+salon-booking-frontend/node_modules/
+salon-booking-frontend/out/
+
+# Environment
+.env
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
