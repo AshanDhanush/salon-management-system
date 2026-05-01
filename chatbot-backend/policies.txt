@@ -1,0 +1,27 @@
+To ensure your RAG chatbot provides professional and consistent answers, you should include these standard policies in your Pinecone vector database. These policies protect your business and set clear expectations for your customers.
+
+Here are the key policies for your salon:
+
+1. Cancellation & Rescheduling Policy
+Notice Period: We require at least 24 hours' notice for any cancellations or rescheduling of appointments.
+
+Late Cancellation Fee: Cancellations made less than 24 hours before the scheduled time may incur a fee of 50% of the service cost.
+
+No-Show Policy: Customers who fail to show up for an appointment without notice will be charged the full amount of the booked service.
+
+2. Late Arrival Policy
+Grace Period: We offer a 15-minute grace period. If you arrive more than 15 minutes late, we may need to shorten your service time or reschedule your appointment to avoid impacting other clients.
+
+Full Charge: Even if the service is shortened due to late arrival, the full price of the original booking will apply.
+
+3. Booking & Payment Policy
+Advance Booking: We highly recommend booking appointments at least 2 days in advance via our website or mobile app.
+
+Payment Methods: We accept Cash, Credit/Debit Cards, and online payments through our secure portal.
+
+Service Guarantee: If you are not satisfied with your service, please let us know within 24 hours so we can make it right.
+
+4. Health & Safety Policy
+Sanitization: All tools and stations are thoroughly sanitized between every client.
+
+Customer Health: For the safety of our staff and other clients, we kindly ask that you reschedule your appointment if you are feeling unwell or showing symptoms of a contagious illness.
