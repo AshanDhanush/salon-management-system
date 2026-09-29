@@ -39,7 +39,7 @@ def create_rag_agent():
     llm = ChatGroq(
         temperature=0,
         model_name="llama-3.3-70b-versatile",
-        groq_api_key="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"
+        groq_api_key=os.getenv("GROQ_API_KEY")
     )
 
    
