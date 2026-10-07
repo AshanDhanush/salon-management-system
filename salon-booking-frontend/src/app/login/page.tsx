@@ -22,7 +22,7 @@ export default function Login() {
         setError(''); // Reset error on new attempt
 
         try {
-            const response = await axios.post('http://localhost:8081/api/auth/login', {
+            const response = await axios.post( `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
                 email: email,
                 password: password
             });
